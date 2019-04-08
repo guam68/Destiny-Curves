@@ -17,7 +17,7 @@
         let deck_submit_btn = document.querySelector("#deck_submit_btn") 
         let characters = []
         let deck_cards = []
-        let card_data = []
+        let card_data = {}
 
         deck_submit_btn.addEventListener("click", function(){
             let deck_id = document.querySelector("#deck_id_input").value
@@ -30,13 +30,20 @@
                     characters = data["characters"]
                     deck_cards = data["slots"]
                     let cards = Object.assign({}, characters, deck_cards)
+                    let card_promises = []
 
                     Object.keys(cards).forEach(function(card){
-                        get_card_data(card)
+                        card_promises.push(get_card_data(card))
                     })
-                    assign_values()
+                    axios
+                        .all(card_promises)
+                        .then(axios.spread((...args) => {
+                            for(let card_obj of args){
+                                card_data[card_obj["data"]["code"]] = card_obj["data"]
+                            }
+                            assign_values()
+                        }))
                 })
-            
         })
 
 
@@ -45,17 +52,12 @@
             for(let char_id of Object.keys(characters)){
                 console.log(char_id)
             }
-            // id,rd,md
         }
+
 
         function get_card_data(card){
             let url = base_url + "card/" + card
-            axios
-                .get(url, {"Access-Control-Allow-Origin": "*"})
-                .then(function(response) {
-                    let data = response.data
-                    card_data += data
-                })
+            return axios.get(url, {"Access-Control-Allow-Origin": "*"})
         }
 
 
