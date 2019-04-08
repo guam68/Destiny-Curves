@@ -3,21 +3,37 @@
 let base_url = "https://swdestinydb.com/api/public/"
 let test = document.querySelector(".test")        
 let deck_submit_btn = document.querySelector("#deck_submit_btn") 
-let characters = []
-let deck_cards = []
+let user_deck_id = document.querySelector("#user_deck_id").value
+let opp_deck_id = document.querySelector("#opp_deck_id").value
+let user_char = []
+let user_deck_cards = []
+let opp_char = []
+let opp_deck_cards = []
 let card_data = {}
 
-deck_submit_btn.addEventListener("click", function(){
-    let deck_id = document.querySelector("#deck_id_input").value
+deck_submit_btn.addEventListener("click", () => {
+    process_data(user_deck_id, true)
+    process_data(opp_deck_id, false)
+    get_curve(4)
+})
 
+
+function process_data(deck_id, user){
     let url = base_url + "decklist/" + deck_id
     axios
         .get(url, {"Access-Control-Allow-Origin": "*"})
         .then(function(response) {
             let data = response.data
-            characters = data["characters"]
-            deck_cards = data["slots"]
-            let cards = Object.assign({}, characters, deck_cards)
+            if(user){
+                user_char = data["characters"]
+                user_deck_cards = data["slots"]
+                var cards = Object.assign({}, user_char, user_deck_cards)
+            } else {
+                opp_char = data["characters"]
+                opp_deck_cards = data["slots"]
+                var cards = Object.assign({}, opp_char, opp_deck_cards)
+            }
+            
             let card_promises = []
 
             Object.keys(cards).forEach(function(card){
@@ -30,15 +46,16 @@ deck_submit_btn.addEventListener("click", function(){
                         card_data[card_obj["data"]["code"]] = card_obj["data"]
                     }
                     assign_values()
-                    get_curve(4)
                 }))
         })
-})
-
+}
 
 function assign_values(){
     console.log(card_data)
-    for(let char_id of Object.keys(characters)){
+    for(let char_id of Object.keys(opp_char)){
+        console.log(char_id)
+    }
+    for(let char_id of Object.keys(user_char)){
         console.log(char_id)
     }
 }
@@ -73,7 +90,6 @@ function get_curve(turns){
         .attr("transform", "translate(0," + height + ")")
         .call(d3.axisBottom(x).ticks(turns))
         
-
     svg.append("g")
         .call(d3.axisLeft(y))
 
@@ -97,6 +113,5 @@ function get_curve(turns){
             .attr("cy", function(d) { return y(d.y) })
             .attr("r", 5)
             .attr("fill", "#69b3a2")
-
-
 }
+
