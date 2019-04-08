@@ -1,0 +1,64 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Destiny Curves</title>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <input id="deck_id_input" type="text" placeholder="Enter deck id">
+    <button id="deck_submit_btn" type="submit">Submit</button>
+    <div class="test"></div>
+
+    <script>
+        let base_url = "https://swdestinydb.com/api/public/"
+        let test = document.querySelector(".test")        
+        let deck_submit_btn = document.querySelector("#deck_submit_btn") 
+        let characters = []
+        let deck_cards = []
+        let card_data = []
+
+        deck_submit_btn.addEventListener("click", function(){
+            let deck_id = document.querySelector("#deck_id_input").value
+
+            let url = base_url + "decklist/" + deck_id
+            axios
+                .get(url, {"Access-Control-Allow-Origin": "*"})
+                .then(function(response) {
+                    let data = response.data
+                    characters = data["characters"]
+                    deck_cards = data["slots"]
+                    let cards = Object.assign({}, characters, deck_cards)
+
+                    Object.keys(cards).forEach(function(card){
+                        get_card_data(card)
+                    })
+                    assign_values()
+                })
+            
+        })
+
+
+        function assign_values(){
+            console.log(card_data)
+            for(let char_id of Object.keys(characters)){
+                console.log(char_id)
+            }
+            // id,rd,md
+        }
+
+        function get_card_data(card){
+            let url = base_url + "card/" + card
+            axios
+                .get(url, {"Access-Control-Allow-Origin": "*"})
+                .then(function(response) {
+                    let data = response.data
+                    card_data += data
+                })
+        }
+
+
+    </script>
+</body>
+</html>
