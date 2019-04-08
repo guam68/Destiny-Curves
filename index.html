@@ -5,62 +5,14 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Destiny Curves</title>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="http://d3js.org/d3.v4.js"></script>
+    
 </head>
 <body>
     <input id="deck_id_input" type="text" placeholder="Enter deck id">
     <button id="deck_submit_btn" type="submit">Submit</button>
-    <div class="test"></div>
+    <div class="chart"></div>
 
-    <script>
-        let base_url = "https://swdestinydb.com/api/public/"
-        let test = document.querySelector(".test")        
-        let deck_submit_btn = document.querySelector("#deck_submit_btn") 
-        let characters = []
-        let deck_cards = []
-        let card_data = {}
-
-        deck_submit_btn.addEventListener("click", function(){
-            let deck_id = document.querySelector("#deck_id_input").value
-
-            let url = base_url + "decklist/" + deck_id
-            axios
-                .get(url, {"Access-Control-Allow-Origin": "*"})
-                .then(function(response) {
-                    let data = response.data
-                    characters = data["characters"]
-                    deck_cards = data["slots"]
-                    let cards = Object.assign({}, characters, deck_cards)
-                    let card_promises = []
-
-                    Object.keys(cards).forEach(function(card){
-                        card_promises.push(get_card_data(card))
-                    })
-                    axios
-                        .all(card_promises)
-                        .then(axios.spread((...args) => {
-                            for(let card_obj of args){
-                                card_data[card_obj["data"]["code"]] = card_obj["data"]
-                            }
-                            assign_values()
-                        }))
-                })
-        })
-
-
-        function assign_values(){
-            console.log(card_data)
-            for(let char_id of Object.keys(characters)){
-                console.log(char_id)
-            }
-        }
-
-
-        function get_card_data(card){
-            let url = base_url + "card/" + card
-            return axios.get(url, {"Access-Control-Allow-Origin": "*"})
-        }
-
-
-    </script>
+    <script src="index.js"></script>
 </body>
 </html>

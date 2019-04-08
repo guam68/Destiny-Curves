@@ -13,7 +13,7 @@ This is going to be a simple single page application that works in tandem with s
 
 ## Progress
 
-- [ ] Get all data for a deck to the page
+- [x] Get all data for a deck to the page
 - [ ] Generate a graph for a curve (based on a four turn game)
 
 * [ ] Slider to adjust turn amount
