@@ -12,58 +12,51 @@ let opp_deck_cards = []
 let card_data = {}
 
 deck_submit_btn.addEventListener("click", () => {
-    process_data(user_deck_id, true)
-    process_data(opp_deck_id, false)
-    get_curve(4)
+    process_data(user_deck_id, opp_deck_id)
+    // get_curve(4)
 })
 
 
-function process_data(deck_id, user){
-    let url = base_url + "decklist/" + deck_id
+function process_data(deck_id, opp_deck){
     axios
-        .get(url, {"Access-Control-Allow-Origin": "*"})
-        .then(function(response) {
-            let data = response.data
-            if(user){
-                user_char = data["characters"]
-                user_deck_cards = data["slots"]
-                var cards = Object.assign({}, user_char, user_deck_cards)
-            } else {
-                opp_char = data["characters"]
-                opp_deck_cards = data["slots"]
-                var cards = Object.assign({}, opp_char, opp_deck_cards)
-            }
+        .all([get_card_promise(deck_id, "decklist/"), get_card_promise(opp_deck, "decklist/")]) 
+        .then(decks => {
+            user_char = decks[0]["data"]["characters"]
+            user_deck_cards = decks[0]["data"]["slots"]
+            opp_char = decks[1]["data"]["characters"]
+            opp_deck_cards = decks[1]["data"]["slots"]
+            var cards = Object.assign({}, user_char, user_deck_cards, opp_char, opp_deck_cards)
             
             let card_promises = []
-
-            Object.keys(cards).forEach(function(card){
-                card_promises.push(get_card_data(card))
+            Object.keys(cards).forEach(card => {
+                card_promises.push(get_card_promise(card, "card/"))
             })
+
             axios
                 .all(card_promises)
                 .then(axios.spread((...args) => {
                     for(let card_obj of args){
                         card_data[card_obj["data"]["code"]] = card_obj["data"]
                     }
-                    assign_values()
+                    console.log(card_data)
                 }))
         })
 }
 
+
+function get_card_promise(reference, loc){
+    let url = base_url + loc + reference 
+    return axios.get(url, {"Access-Control-Allow-Origin": "*"})
+}
+
+
 function assign_values(){
-    console.log(card_data)
     for(let char_id of Object.keys(opp_char)){
         console.log(char_id)
     }
     for(let char_id of Object.keys(user_char)){
         console.log(char_id)
     }
-}
-
-
-function get_card_data(card){
-    let url = base_url + "card/" + card
-    return axios.get(url, {"Access-Control-Allow-Origin": "*"})
 }
 
 
