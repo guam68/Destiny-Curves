@@ -10,6 +10,8 @@ let user_deck_cards = []
 let opp_char = []
 let opp_deck_cards = []
 let card_data = {}
+let opp_dmg = 0
+let user_dmg = 0
 
 let turn_slide = document.querySelector("#turn_slide")
 let turns = document.querySelector("#turn_value")
@@ -93,17 +95,12 @@ function get_curve(turns){
     svg.append("g")
         .call(d3.axisLeft(y))
 
-    let data = [{x:1, y:2}, {x:2, y:4}, {x:3, y:6}, {x:4, y:8}] 
-    let opp_dmg = calc_dmg(opp_char)
-    let user_dmg = calc_dmg(user_char)
-    data_to_curve(opp_dmg, "#a33639")
-    data_to_curve(user_dmg, "#0071C5")
+    opp_dmg = calc_dmg(opp_char)    
+    user_dmg = calc_dmg(user_char)
+    data_to_curve(format_data(opp_dmg), "#a33639")
+    data_to_curve(format_data(user_dmg), "#0071C5")
 
     
-
-
-// Returns object with character id as key and avg dmg per turn as value.
-// Id is appended with letter to differentiate multiples 
     function calc_dmg(chars){
         let avg_dmgs = {}
         let dupe = "abcde"
@@ -130,10 +127,12 @@ function get_curve(turns){
             }
             avg_dmgs[char_id] = dmg_side ? dmg/dmg_side : 0
         }
-        return format_data(avg_dmgs)
+        return avg_dmgs
     }
 
 
+// Returns object with character id as key and avg dmg per turn as value.
+// Id is appended with letter to differentiate multiples 
     function format_data(damages){
         let formatted = []
         let dmg = 0
@@ -170,6 +169,14 @@ function get_curve(turns){
                 .attr("cy", function(d) { return y(d.y) })
                 .attr("r", 5)
                 .attr("fill", color)
+    }
+
+
+    function generate_controls(){
+        console.log(opp_dmg)
+        console.log(user_dmg)
+        // for()
+        let char_check =  document.createElement("input")
     }
 }
 
