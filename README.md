@@ -5,7 +5,7 @@ I was working on another django project but I've decided to set it on hold in fa
 
 I'm still pretty new (I have five games under my belt at this point) and one thing I have found interesting when considering options in deck building are damage and resource curves. Shout out to Team Covenant and their learn to play series. You can learn more about the curves and how they affect deck building [here](https://www.youtube.com/watch?v=u2UXHAMUfFY&list=PLmHifZPFC_JtcmsxaciHHf8FEonoV6KOL&index=6). 
 
-The goal of this project is to produce these curves based on an imported decklist. Ideally they would be real time adustable based on user input information. Still need to learn a bit more on what is actually most useful to the player.
+The goal of this project is to produce these curves based on an imported decklist. Ideally they would be adustable based on user input information. Still need to learn a bit more on what is actually most useful to the player.
 
 ## Functionality
 
@@ -14,10 +14,13 @@ This is going to be a simple single page application that works in tandem with s
 ## Progress
 
 - [x] Get all data for a deck to the page
-- [ ] Generate a graph for a curve (based on a four turn game)
+- [x] Generate a graph for a curve (based on a four turn game)
 
-* [ ] Slider to adjust turn amount
-* [ ] Interface for browsing cards
+* [x] Input for turn amount
+* [ ] Input for primary target
+* [ ] Curve adjustment for turn characters are expected to be defeated 
+* [ ] Select to add upgrades/supports for different turns 
 
-### TBD stuff
-- [ ] Select to add upgrades/supports for different turns 
+- [ ] Interface for browsing cards
+
+

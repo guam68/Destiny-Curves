@@ -1,8 +1,8 @@
 
 
 let base_url = "https://swdestinydb.com/api/public/"
-let test = document.querySelector(".test")        
 let deck_submit_btn = document.querySelector("#deck_submit_btn") 
+let graph_btn = document.querySelector("#graph_btn") 
 let user_deck_id = document.querySelector("#user_deck_id").value
 let opp_deck_id = document.querySelector("#opp_deck_id").value
 let user_char = []
@@ -11,9 +11,22 @@ let opp_char = []
 let opp_deck_cards = []
 let card_data = {}
 
+let turn_slide = document.querySelector("#turn_slide")
+let turns = document.querySelector("#turn_value")
+turns.innerText = turn_slide.value
+
 deck_submit_btn.addEventListener("click", () => {
     process_data(user_deck_id, opp_deck_id)
 })
+
+graph_btn.addEventListener("click", () => {
+    get_curve(turns.innerText)
+})
+
+
+turn_slide.oninput = function() {
+    turns.innerText = this.value
+}
 
 
 function process_data(deck_id, opp_deck){
@@ -37,7 +50,7 @@ function process_data(deck_id, opp_deck){
                     for(let card_obj of args){
                         card_data[card_obj["data"]["code"]] = card_obj["data"]
                     }
-                    get_curve(4)
+                    get_curve(turns.innerText)
                 }))
         })
 }
@@ -71,7 +84,7 @@ function get_curve(turns){
     let y = d3.scaleLinear().range([height, 0])
 
     x.domain([1,turns])
-    y.domain([0,d3.max([20])])
+    y.domain([0,d3.max([turns * 6])])
 
     svg.append("g")
         .attr("transform", "translate(0," + height + ")")
