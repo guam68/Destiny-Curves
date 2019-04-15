@@ -6,17 +6,13 @@ let user_deck_id = document.querySelector("#user_deck_id").value
 let opp_deck_id = document.querySelector("#opp_deck_id").value
 let user_char_arr = [] 
 let opp_char_arr = [] 
-let opp_char = []
-let user_char = []
-let user_deck_cards = []
-let opp_deck_cards = []
 let card_data = {}
-let opp_dmg = 0
-let user_dmg = 0
 
 let turn_slide = document.querySelector("#turn_slide")
 let turns = document.querySelector("#turn_value")
 turns.innerText = turn_slide.value
+
+let target = {}
 
 
 class Character {
@@ -26,6 +22,8 @@ class Character {
         this.sides = sides
         this.health = health
         this.char_dmg = 0
+
+        this.calc_dmg()
     }
     
     calc_dmg(){
@@ -41,7 +39,7 @@ class Character {
         }
         this.char_dmg = dmg_side ? dmg/dmg_side : 0
 
-        return this.char_dmg
+        // return this.char_dmg
     }
     
     give_upgrade(){
@@ -49,11 +47,11 @@ class Character {
     }
     
     get_damage(){
-        return this.calc_dmg() 
+        return this.char_dmg
     }
 
     get_wrecked(){
-        return
+        this.char_dmg = 0
     }
 }
 
@@ -61,6 +59,7 @@ class Character {
 deck_submit_btn.addEventListener("click", () => {
     process_data(user_deck_id, opp_deck_id)
 })
+
 
 graph_btn.addEventListener("click", () => {
     get_curve(turns.innerText)
@@ -76,10 +75,10 @@ function process_data(deck_id, opp_deck){
     axios
         .all([get_card_promise(deck_id, "decklist/"), get_card_promise(opp_deck, "decklist/")]) 
         .then(decks => {
-            user_char = decks[0]["data"]["characters"]
-            user_deck_cards = decks[0]["data"]["slots"]
-            opp_char = decks[1]["data"]["characters"]
-            opp_deck_cards = decks[1]["data"]["slots"]
+            let user_char = decks[0]["data"]["characters"]
+            let user_deck_cards = decks[0]["data"]["slots"]
+            let opp_char = decks[1]["data"]["characters"]
+            let opp_deck_cards = decks[1]["data"]["slots"]
             var cards = Object.assign({}, user_char, user_deck_cards, opp_char, opp_deck_cards)
             
             let card_promises = []
@@ -95,8 +94,8 @@ function process_data(deck_id, opp_deck){
                     }
                     assign_chars(user_char, true)
                     assign_chars(opp_char, false)
-                    console.log(user_char_arr[0].get_damage()) 
-                    console.log(opp_char_arr[0].get_damage()) 
+                    // console.log(user_char_arr[0].get_damage()) 
+                    // console.log(opp_char_arr[0].get_damage()) 
                     get_curve(turns.innerText)
                 }))
         })
@@ -105,7 +104,7 @@ function process_data(deck_id, opp_deck){
 
 function assign_chars(chars, user){
     let char_arr = user ? user_char_arr : opp_char_arr
-    let dupe = "abcde"
+    let dupe = "abcdefgh"
     var fixed_ids = []
 
     for(let char_id of Object.keys(chars)){
@@ -165,54 +164,54 @@ function get_curve(turns){
     svg.append("g")
         .call(d3.axisLeft(y))
 
-    opp_dmg = calc_dmg(opp_char)    
-    user_dmg = calc_dmg(user_char)
-    data_to_curve(format_data(opp_dmg), "#a33639")
-    data_to_curve(format_data(user_dmg), "#0071C5")
+    let turn_dmgs = get_turn_dmg() 
+    data_to_curve(format_data(turn_dmgs["opp"]), "#a33639") 
+    data_to_curve(format_data(turn_dmgs["user"]), "#0071C5")  
+    get_turn_dmg()
 
-    
-    function calc_dmg(chars){
-        let avg_dmgs = {}
-        let dupe = "abcde"
+    function get_turn_dmg(){
+        let opp_turn_dmgs = [0]
+        let user_turn_dmgs = [0]
 
-        for(let char_id of Object.keys(chars)){
-            let i = 0 
-            while(i<chars[char_id]["quantity"]){
-                avg_dmgs[char_id + dupe.charAt(i)] = 0
-                i++
+        for(let i=0;i<turns;i++){
+            let user_total_dmg = 0
+            let opp_total_dmg = 0
+
+            // console.log(user_turn_dmgs.reduce((x,y) => x+y))
+
+            if(user_turn_dmgs.reduce((x,y) => x+y) > target.health){
+                target.get_wrecked()
             }
-        }
-
-        for(let char_id of Object.keys(avg_dmgs)){
-            let dmg = 0
-            let dmg_side = 0
-            let sides = card_data[char_id.slice(0,5)]["sides"]
-
-            for(let i=0;i<sides.length;i++){
-                if(sides[i].includes("MD") || sides[i].includes("RD") || sides[i].includes("ID")){
-                    side = /\d[A-Z]/gm.exec(sides[i])
-                    dmg += parseInt(side[0].charAt(0))
-                    dmg_side++
-                }
+            for(let char of opp_char_arr){
+                opp_total_dmg += char.get_damage()
             }
-            avg_dmgs[char_id] = dmg_side ? dmg/dmg_side : 0
+            for(let char of user_char_arr){
+                user_total_dmg += char.get_damage()
+            }
+            opp_turn_dmgs[i] = opp_total_dmg
+            user_turn_dmgs[i] = user_total_dmg
         }
-        console.log(avg_dmgs)
-        return avg_dmgs
+        // console.log(opp_turn_dmgs)
+        // console.log(user_turn_dmgs)
+
+        return({"opp": opp_turn_dmgs, "user":user_turn_dmgs})
     }
 
 
 // Returns object with character id as key and avg dmg per turn as value.
 // Id is appended with letter to differentiate multiples 
-    function format_data(damages){
+    function format_data(char_arr){
         let formatted = []
         let dmg = 0
 
-        for(let key in damages){
-            dmg += damages[key]
-        }
+        console.log(char_arr)
+
+        // for(let i=0;i<char_arr.length;i++){
+        //     dmg += parseFloat(char_arr[i].get_damage())
+        // }
         for(let i=0;i<turns;i++){
-            formatted.push({ "x":i+1, "y":dmg * (i+1) })
+            dmg += char_arr[i]
+            formatted.push({ "x":i+1, "y":dmg})
         }
         return formatted
     }
@@ -241,31 +240,37 @@ function get_curve(turns){
                 .attr("fill", color)
     }
 
+
     generate_characters("#opp_chars")
     function generate_characters(player_div){
         let char_wrap = document.querySelector(player_div)
 
-        for(let [i, char] of user_char_arr.entries()){
-            console.log("----------")
-            console.log(char)
+        if(!char_wrap.firstChild) {
+            for(let [i, char] of opp_char_arr.entries()){
+                // console.log("----------")
+                // console.log(char)
 
-            let char_div = document.createElement("div")
-            char_div.className = "character"
-            char_div.id = "character" + toString(i)
-            char_div.innerText = char.name
-            char_wrap.appendChild(char_div)
+                let char_div = document.createElement("div")
+                char_div.className = "character"
+                char_div.id = "character" + i
+                char_div.innerText = char.name
+                char_wrap.appendChild(char_div)
 
-            let char_toggle = document.createElement("input")
-            char_toggle.id = "toggle" + toString(i)
-            char_toggle.type = "checkbox"
-            char_toggle.innerText = "Target"
-            char_div.appendChild(char_toggle)
+                let char_toggle = document.createElement("input")
+                char_toggle.id = "toggle" + i
+                char_toggle.type = "checkbox"
+                char_toggle.innerText = "Target"
+                char_div.appendChild(char_toggle)
 
-            char_toggle.addEventListener("change", () => {
-                if(char_toggle.checked){
-                    user_char_arr[i].get_wrecked()
-                }
-            })
+                char_toggle.addEventListener("change", () => {
+                    if(char_toggle.checked){
+                        target = opp_char_arr[i]
+                    } else {
+                        target.calc_dmg()
+                        target = {}
+                    }
+                })
+            }
         }
     }
 
