@@ -42,8 +42,6 @@ class Character {
             }
         }
         this.char_dmg = dmg_side ? dmg/dmg_side : 0
-
-        // return this.char_dmg
     }
 
     assign_pri(pri){
@@ -56,6 +54,11 @@ class Character {
     
     get_damage(){
         return this.char_dmg
+    }
+
+    reset_char() {
+        this.calc_dmg()
+        this.alive = true
     }
 
     get_wrecked(){
@@ -103,8 +106,6 @@ function process_data(deck_id, opp_deck){
                     }
                     assign_chars(user_char, true)
                     assign_chars(opp_char, false)
-                    // console.log(user_char_arr[0].get_damage()) 
-                    // console.log(opp_char_arr[0].get_damage()) 
                     get_curve(turns.innerText)
                 }))
         })
@@ -143,7 +144,17 @@ function get_card_promise(reference, loc){
 }
 
 
+function reset(){
+    target = {}
+    health_pool = 0
+    for(let char of opp_char_arr){
+        char.reset_char()
+    }
+}
+
+
 function get_curve(turns){
+    reset()
     if(document.querySelector(".curve")){
         d3.select(".curve").remove()
     }
@@ -195,13 +206,10 @@ function get_curve(turns){
                 if(!target.alive){
                     if(opp_char_arr[i].alive && opp_char_arr[i].priority == parseInt(target.priority) + 1 && opp_char_arr[i].priority > 0){
                         target = opp_char_arr[i]
-                        alert("e")
                     }
                 } else if(opp_char_arr[i].alive && opp_char_arr[i].priority < target.priority && opp_char_arr[i].priority > 0){
                     target = opp_char_arr[i]
                 }
-                console.log(target)
-
             }
             
 
@@ -228,8 +236,6 @@ function get_curve(turns){
     function format_data(char_arr){
         let formatted = []
         let dmg = 0
-
-        // console.log(char_arr)
 
         // for(let i=0;i<char_arr.length;i++){
         //     dmg += parseFloat(char_arr[i].get_damage())
@@ -272,9 +278,6 @@ function get_curve(turns){
 
         if(!char_wrap.firstChild) {
             for(let [i, char] of opp_char_arr.entries()){
-                // console.log("----------")
-                // console.log(char)
-
                 let char_div = document.createElement("div")
                 char_div.className = "character"
                 char_div.id = "character" + i
