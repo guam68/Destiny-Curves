@@ -7,6 +7,8 @@ let opp_deck_id = document.querySelector("#opp_deck_id").value
 let user_char_arr = [] 
 let opp_char_arr = [] 
 let card_data = {}
+let priority_set = false
+let health_pool = 0 
 
 let turn_slide = document.querySelector("#turn_slide")
 let turns = document.querySelector("#turn_value")
@@ -22,6 +24,8 @@ class Character {
         this.sides = sides
         this.health = health
         this.char_dmg = 0
+        this.alive = true
+        this.priority = 0
 
         this.calc_dmg()
     }
@@ -41,6 +45,10 @@ class Character {
 
         // return this.char_dmg
     }
+
+    assign_pri(pri){
+        this.priority = pri
+    }
     
     give_upgrade(){
         return
@@ -52,6 +60,7 @@ class Character {
 
     get_wrecked(){
         this.char_dmg = 0
+        this.alive = false
     }
 }
 
@@ -130,7 +139,7 @@ function assign_chars(chars, user){
 // reference is card/deck id number, loc is the location of the resource for the destinydb API
 function get_card_promise(reference, loc){
     let url = base_url + loc + reference 
-    return axios.get(url, {"Access-Control-Allow-Origin": "*"})
+    return axios.get(url, { "Access-Control-Allow-Origin": "*" })
 }
 
 
@@ -164,6 +173,7 @@ function get_curve(turns){
     svg.append("g")
         .call(d3.axisLeft(y))
 
+    generate_characters("#opp_chars")
     let turn_dmgs = get_turn_dmg() 
     data_to_curve(format_data(turn_dmgs["opp"]), "#a33639") 
     data_to_curve(format_data(turn_dmgs["user"]), "#0071C5")  
@@ -173,14 +183,31 @@ function get_curve(turns){
         let opp_turn_dmgs = [0]
         let user_turn_dmgs = [0]
 
+
         for(let i=0;i<turns;i++){
             let user_total_dmg = 0
             let opp_total_dmg = 0
 
-            // console.log(user_turn_dmgs.reduce((x,y) => x+y))
+            for(let i=0;i<opp_char_arr.length;i++){
+                if(Object.keys(target).length == 0 && priority_set){
+                    target = opp_char_arr[i]
+                } 
+                if(!target.alive){
+                    if(opp_char_arr[i].alive && opp_char_arr[i].priority == parseInt(target.priority) + 1 && opp_char_arr[i].priority > 0){
+                        target = opp_char_arr[i]
+                        alert("e")
+                    }
+                } else if(opp_char_arr[i].alive && opp_char_arr[i].priority < target.priority && opp_char_arr[i].priority > 0){
+                    target = opp_char_arr[i]
+                }
+                console.log(target)
 
-            if(user_turn_dmgs.reduce((x,y) => x+y) > target.health){
+            }
+            
+
+            if(user_turn_dmgs.reduce((x,y) => x+y) >= target.health + health_pool){
                 target.get_wrecked()
+                health_pool += target.health
             }
             for(let char of opp_char_arr){
                 opp_total_dmg += char.get_damage()
@@ -191,10 +218,8 @@ function get_curve(turns){
             opp_turn_dmgs[i] = opp_total_dmg
             user_turn_dmgs[i] = user_total_dmg
         }
-        // console.log(opp_turn_dmgs)
-        // console.log(user_turn_dmgs)
 
-        return({"opp": opp_turn_dmgs, "user":user_turn_dmgs})
+        return({ "opp": opp_turn_dmgs, "user":user_turn_dmgs })
     }
 
 
@@ -204,14 +229,14 @@ function get_curve(turns){
         let formatted = []
         let dmg = 0
 
-        console.log(char_arr)
+        // console.log(char_arr)
 
         // for(let i=0;i<char_arr.length;i++){
         //     dmg += parseFloat(char_arr[i].get_damage())
         // }
         for(let i=0;i<turns;i++){
             dmg += char_arr[i]
-            formatted.push({ "x":i+1, "y":dmg})
+            formatted.push({ "x":i+1, "y":dmg })
         }
         return formatted
     }
@@ -257,18 +282,16 @@ function get_curve(turns){
                 char_wrap.appendChild(char_div)
 
                 let char_toggle = document.createElement("input")
+                char_toggle.className = "char_priority"
                 char_toggle.id = "toggle" + i
-                char_toggle.type = "checkbox"
-                char_toggle.innerText = "Target"
+                char_toggle.type = "number"
+                char_toggle.min = "1"
+                char_toggle.max = opp_char_arr.length 
                 char_div.appendChild(char_toggle)
 
-                char_toggle.addEventListener("change", () => {
-                    if(char_toggle.checked){
-                        target = opp_char_arr[i]
-                    } else {
-                        target.calc_dmg()
-                        target = {}
-                    }
+                char_toggle.addEventListener("change", function() {
+                    opp_char_arr[this.id.slice(6,7)].assign_pri(this.value)
+                    priority_set = true
                 })
             }
         }
