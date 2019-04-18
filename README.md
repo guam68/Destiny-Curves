@@ -17,8 +17,8 @@ This is going to be a simple single page application that works in tandem with s
 - [x] Generate a graph for a curve (based on a four turn game)
 
 * [x] Input for turn amount
-* [ ] Input for primary target
-* [ ] Curve adjustment for turn characters are expected to be defeated 
+* [x] Input for primary target
+* [x] Curve adjustment for turn characters are expected to be defeated 
 * [ ] Select to add upgrades/supports for different turns 
 
 - [ ] Interface for browsing cards

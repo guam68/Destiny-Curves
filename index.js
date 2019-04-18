@@ -8,13 +8,15 @@ let user_char_arr = []
 let opp_char_arr = [] 
 let card_data = {}
 let priority_set = false
-let health_pool = 0 
+let user_hp = 0
+let opp_hp = 0
 
 let turn_slide = document.querySelector("#turn_slide")
 let turns = document.querySelector("#turn_value")
 turns.innerText = turn_slide.value
 
-let target = {}
+let user_target = {}
+let opp_target = {}
 
 
 class Character {
@@ -145,9 +147,15 @@ function get_card_promise(reference, loc){
 
 
 function reset(){
-    target = {}
-    health_pool = 0
+    user_target = {}
+    opp_target = {}
+    user_hp = 0
+    opp_hp = 0
+
     for(let char of opp_char_arr){
+        char.reset_char()
+    }
+    for(let char of user_char_arr){
         char.reset_char()
     }
 }
@@ -184,50 +192,67 @@ function get_curve(turns){
     svg.append("g")
         .call(d3.axisLeft(y))
 
-    generate_characters("#opp_chars")
+    generate_characters("#opp_chars", opp_char_arr)
+    generate_characters("#user_chars", user_char_arr)
     let turn_dmgs = get_turn_dmg() 
     data_to_curve(format_data(turn_dmgs["opp"]), "#a33639") 
     data_to_curve(format_data(turn_dmgs["user"]), "#0071C5")  
-    get_turn_dmg()
 
+
+// refactor repetitions
     function get_turn_dmg(){
         let opp_turn_dmgs = [0]
         let user_turn_dmgs = [0]
-
 
         for(let i=0;i<turns;i++){
             let user_total_dmg = 0
             let opp_total_dmg = 0
 
-            for(let i=0;i<opp_char_arr.length;i++){
-                if(Object.keys(target).length == 0 && priority_set){
-                    target = opp_char_arr[i]
-                } 
-                if(!target.alive){
-                    if(opp_char_arr[i].alive && opp_char_arr[i].priority == parseInt(target.priority) + 1 && opp_char_arr[i].priority > 0){
-                        target = opp_char_arr[i]
-                    }
-                } else if(opp_char_arr[i].alive && opp_char_arr[i].priority < target.priority && opp_char_arr[i].priority > 0){
-                    target = opp_char_arr[i]
-                }
-            }
-            
+            user_target = set_target(user_char_arr, user_target)
+            opp_target = set_target(opp_char_arr, opp_target)
 
-            if(user_turn_dmgs.reduce((x,y) => x+y) >= target.health + health_pool){
-                target.get_wrecked()
-                health_pool += target.health
+            if(user_turn_dmgs.reduce((x,y) => x+y) >= opp_target.health + opp_hp){
+                opp_target.get_wrecked()
+                opp_hp += opp_target.health
+            }
+            if(opp_turn_dmgs.reduce((x,y) => x+y) >= user_target.health + user_hp){
+                user_target.get_wrecked()
+                user_hp += user_target.health
+            }
+
+            for(let char of user_char_arr){
+                user_total_dmg += char.get_damage()
             }
             for(let char of opp_char_arr){
                 opp_total_dmg += char.get_damage()
             }
-            for(let char of user_char_arr){
-                user_total_dmg += char.get_damage()
-            }
-            opp_turn_dmgs[i] = opp_total_dmg
             user_turn_dmgs[i] = user_total_dmg
+            opp_turn_dmgs[i] = opp_total_dmg
         }
 
-        return({ "opp": opp_turn_dmgs, "user":user_turn_dmgs })
+        let turn_dmgs = {
+            "opp": opp_turn_dmgs,
+            "user": user_turn_dmgs
+        }
+
+        return turn_dmgs
+    }
+
+
+    function set_target(char_arr, target){
+        for(let i=0;i<char_arr.length;i++){
+            if(Object.keys(target).length == 0 && priority_set){
+                target = char_arr[i]
+            } 
+            if(!target.alive){
+                if(char_arr[i].alive && char_arr[i].priority == parseInt(target.priority) + 1 && char_arr[i].priority > 0){
+                    target = char_arr[i]
+                }
+            } else if(char_arr[i].alive && char_arr[i].priority < target.priority && char_arr[i].priority > 0){
+                target = char_arr[i]
+            }
+        }
+        return target
     }
 
 
@@ -272,12 +297,11 @@ function get_curve(turns){
     }
 
 
-    generate_characters("#opp_chars")
-    function generate_characters(player_div){
+    function generate_characters(player_div, char_arr){
         let char_wrap = document.querySelector(player_div)
 
         if(!char_wrap.firstChild) {
-            for(let [i, char] of opp_char_arr.entries()){
+            for(let [i, char] of char_arr.entries()){
                 let char_div = document.createElement("div")
                 char_div.className = "character"
                 char_div.id = "character" + i
@@ -289,11 +313,11 @@ function get_curve(turns){
                 char_toggle.id = "toggle" + i
                 char_toggle.type = "number"
                 char_toggle.min = "1"
-                char_toggle.max = opp_char_arr.length 
+                char_toggle.max = char_arr.length 
                 char_div.appendChild(char_toggle)
 
                 char_toggle.addEventListener("change", function() {
-                    opp_char_arr[this.id.slice(6,7)].assign_pri(this.value)
+                    char_arr[this.id.slice(6,7)].assign_pri(this.value)
                     priority_set = true
                 })
             }
