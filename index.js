@@ -8,30 +8,28 @@ let user_char_arr = []
 let opp_char_arr = [] 
 let card_data = {}
 let priority_set = false
-let user_hp = 0
-let opp_hp = 0
 
 let turn_slide = document.querySelector("#turn_slide")
 let turns = document.querySelector("#turn_value")
 turns.innerText = turn_slide.value
 
+let user_hp = 0
+let opp_hp = 0
 let user_target = {}
 let opp_target = {}
 
 
-class Character {
-    constructor(id, name, sides, health){
+class Dice_Card {
+    constructor(id, name, sides){
         this.id = id
         this.name = name
         this.sides = sides
-        this.health = health
-        this.char_dmg = 0
-        this.alive = true
-        this.priority = 0
+        this.dmg_total = 0
 
         this.calc_dmg()
     }
-    
+
+
     calc_dmg(){
         let dmg = 0
         let dmg_side = 0
@@ -43,34 +41,59 @@ class Character {
                 dmg_side++
             }
         }
-        this.char_dmg = dmg_side ? dmg/dmg_side : 0
+        this.dmg_total = dmg_side ? dmg/dmg_side : 0
     }
+}
+
+
+class Character extends Dice_Card {
+    constructor(id, name, sides, health){
+        super(id, name, sides)
+        this.health = health
+        this.alive = true
+        this.priority = 0
+    }
+
 
     assign_pri(pri){
         this.priority = pri
     }
     
+
     give_upgrade(){
         return
     }
     
+
     get_damage(){
-        return this.char_dmg
+        return this.dmg_total
     }
+
 
     reset_char() {
         this.calc_dmg()
         this.alive = true
     }
 
+
     get_wrecked(){
-        this.char_dmg = 0
+        this.dmg_total = 0
         this.alive = false
     }
 }
 
 
+class Upgrade extends Dice_Card {
+    constructor(id, names, sides, cost){
+        super(id, names, sides)
+        this.cost = cost
+    }
+}
+
+
 deck_submit_btn.addEventListener("click", () => {
+    priority_set = false
+    reset()
     process_data(user_deck_id, opp_deck_id)
 })
 
@@ -262,9 +285,6 @@ function get_curve(turns){
         let formatted = []
         let dmg = 0
 
-        // for(let i=0;i<char_arr.length;i++){
-        //     dmg += parseFloat(char_arr[i].get_damage())
-        // }
         for(let i=0;i<turns;i++){
             dmg += char_arr[i]
             formatted.push({ "x":i+1, "y":dmg })
