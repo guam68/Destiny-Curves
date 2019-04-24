@@ -13,14 +13,26 @@ This is going to be a simple single page application that works in tandem with s
 
 ## Progress
 
+23 Apr 19
+It's gotten to the point to where I'm really kicking myself for trying to do this without a backend. I've revised the progress list to reflect the integration of Python/Django.
+
 - [x] Get all data for a deck to the page
 - [x] Generate a graph for a curve (based on a four turn game)
 
 * [x] Input for turn amount
 * [x] Input for primary target
 * [x] Curve adjustment for turn characters are expected to be defeated 
-* [ ] Select to add upgrades/supports for different turns 
 
+- [ ] Create the basic Django application with the app working in its previous state
+- [ ] Write a Python script to populate a Postgres database with all the card information
+- [ ] Replace existing JS code with Django template code to get card info from database instead of looped API requests
+
+* [ ] Select to add upgrades for different turns
+* [ ] Select to add supports for different turns
+
+- [ ] Generate a graph plotting required resources 
 - [ ] Interface for browsing cards
+
+* [ ] Styling
 
 

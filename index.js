@@ -320,7 +320,7 @@ function get_curve(turns){
     function generate_characters(player_div, char_arr){
         let char_wrap = document.querySelector(player_div)
 
-        if(!char_wrap.firstChild) {
+        if(!char_wrap.firstChild){
             for(let [i, char] of char_arr.entries()){
                 let char_div = document.createElement("div")
                 char_div.className = "character"
