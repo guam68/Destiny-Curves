@@ -1,0 +1,29 @@
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Destiny Curves</title>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="http://d3js.org/d3.v4.js"></script>
+    
+</head>
+<body>
+    <p>27603 27617</p>
+    <input id="user_deck_id" type="text" placeholder="Enter your deck id">
+    <input id="opp_deck_id" type="text" placeholder="Enter opponent deck id">
+    <button id="deck_submit_btn" type="submit">Submit</button>
+    <button id="graph_btn" type="submit">Generate Graph</button>
+    <div class="chart"></div>
+    <div class="slidecontainer">
+        <input type="range" min="4" max="15" value="6" id="turn_slide">
+    </div>
+    <div id="turn_value"></div>
+
+    <div class="char_wrapper" id="user_chars"></div>
+    <div class="char_wrapper" id="opp_chars"></div>
+
+    <script type="text/javascript" src='../static/main/index.js'></script>
+</body>
+</html>

@@ -23,7 +23,7 @@ It's gotten to the point to where I'm really kicking myself for trying to do thi
 * [x] Input for primary target
 * [x] Curve adjustment for turn characters are expected to be defeated 
 
-- [ ] Create the basic Django application with the app working in its previous state
+- [x] Create the basic Django application with the app working in its previous state
 - [ ] Write a Python script to populate a Postgres database with all the card information
 - [ ] Replace existing JS code with Django template code to get card info from database instead of looped API requests
 
