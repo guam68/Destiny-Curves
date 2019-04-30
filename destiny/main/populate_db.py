@@ -1,6 +1,6 @@
 import requests
 from .models import Card
-import logging
+
 
 url = 'https://swdestinydb.com/api/public/cards/'
 cards = requests.get(url).json()
