@@ -254,14 +254,14 @@
             svg.append("g")
                 .call(d3.axisLeft(y))
 
-            generate_characters("#opp_chars", opp_char_arr)
-            generate_characters("#user_chars", user_char_arr)
+            // generate_characters("#opp_chars", opp_char_arr)
+            // generate_characters("#user_chars", user_char_arr)
             let turn_dmgs = get_turn_dmg() 
             data_to_curve(format_data(turn_dmgs["opp"]), "#a33639") 
             data_to_curve(format_data(turn_dmgs["user"]), "#0071C5")  
 
 
-        // refactor repetitions
+            // refactor repetitions
             function get_turn_dmg(){
                 let opp_turn_dmgs = [0]
                 let user_turn_dmgs = [0]
@@ -318,8 +318,8 @@
             }
 
 
-        // Returns object with character id as key and avg dmg per turn as value.
-        // Id is appended with letter to differentiate multiples 
+            // Returns object with character id as key and avg dmg per turn as value.
+            // Id is appended with letter to differentiate multiples 
             function format_data(char_arr){
                 let formatted = []
                 let dmg = 0
@@ -355,7 +355,7 @@
                         .attr("fill", color)
             }
 
-
+            // elements to select character priority
             function generate_characters(player_div, char_arr){
                 let char_wrap = document.querySelector(player_div)
 
