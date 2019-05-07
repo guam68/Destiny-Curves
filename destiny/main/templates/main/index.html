@@ -35,47 +35,32 @@
         let opp_char_arr = [] 
         let card_data = {}
         let priority_set = false
+        let opp_chars = {}
 
         let turn_slide = document.querySelector("#turn_slide")
         let turns = document.querySelector("#turn_value")
         turns.innerText = turn_slide.value
 
-        let user_hp = 0
-        let opp_hp = 0
-        let user_target = {}
-        let opp_target = {}
+        // let user_hp = 0
+        // let opp_hp = 0
+        // let user_target = {}
+        // let opp_target = {}
 
 
         class Dice_Card {
-            constructor(id, name, sides){
+            constructor(id, name, sides, dmg){
                 this.id = id
                 this.name = name
                 this.sides = sides
-                this.dmg_total = 0
+                this.dmg = dmg
 
-                this.calc_dmg()
-            }
-
-
-            calc_dmg(){
-                let dmg = 0
-                let dmg_side = 0
-
-                for(let i=0;i<this.sides.length;i++){
-                    if(this.sides[i].includes("MD") || this.sides[i].includes("RD") || this.sides[i].includes("ID")){
-                        let side = /\d[A-Z]/gm.exec(this.sides[i])
-                        dmg += parseInt(side[0].charAt(0))
-                        dmg_side++
-                    }
-                }
-                this.dmg_total = dmg_side ? dmg/dmg_side : 0
             }
         }
 
 
         class Character extends Dice_Card {
-            constructor(id, name, sides, health){
-                super(id, name, sides)
+            constructor(id, name, sides, dmg, health){
+                super(id, name, sides, dmg)
                 this.health = health
                 this.alive = true
                 this.priority = 0
@@ -98,7 +83,7 @@
 
 
             reset_char() {
-                this.calc_dmg()
+                // this.calc_dmg()
                 this.alive = true
             }
 
@@ -151,51 +136,47 @@
                 )
                 // .all([get_card_promise(deck_id, "decklist/"), get_card_promise(opp_deck, "decklist/")]) 
                 .then(decks => {
-                    let user_char = decks[0]["data"]["characters"]
-                    let user_deck_cards = decks[0]["data"]["slots"]
-                    let opp_char = decks[1]["data"]["characters"]
-                    let opp_deck_cards = decks[1]["data"]["slots"]
-                    var cards = Object.assign({}, user_char, user_deck_cards, opp_char, opp_deck_cards)
+                    // let user_char = decks[0]["data"]["characters"]
+                    // let user_deck_cards = decks[0]["data"]["slots"]
+                    // let opp_char = decks[1]["data"]["characters"]
+                    // let opp_deck_cards = decks[1]["data"]["slots"]
+                    // var cards = Object.assign({}, user_char, user_deck_cards, opp_char, opp_deck_cards)
                     
-                    let card_promises = []
-                    Object.keys(cards).forEach(card => {
-                        card_promises.push(get_card_promise(card, "card/"))
-                    })
-
-                    axios
-                        .all(card_promises)
-                        .then(axios.spread((...args) => {
-                            for(let card_obj of args){
-                                card_data[card_obj["data"]["code"]] = card_obj["data"]
-                            }
-                            assign_chars(user_char, true)
-                            assign_chars(opp_char, false)
-                            get_curve(turns.innerText)
-                        }))
+                    // let card_promises = []
+                    // Object.keys(cards).forEach(card => {
+                    //     card_promises.push(get_card_promise(card, "card/"))
+                    opp_chars = decks.data["opp"]
+                    user_chars = decks.data["user"]
+                    assign_chars(opp_chars, false)
+                    assign_chars(user_chars, true)
+                    
+                    get_curve(turns.innerText)
                 })
+
+                // axios
+                //     .all(card_promises)
+                //     .then(axios.spread((...args) => {
+                //         for(let card_obj of args){
+                //             card_data[card_obj["data"]["code"]] = card_obj["data"]
+                //         }
+                //         assign_chars(user_char, true)
+                //         assign_chars(opp_char, false)
+                //         get_curve(turns.innerText)
+                //     }))
+                
         }
 
 
         function assign_chars(chars, user){
             let char_arr = user ? user_char_arr : opp_char_arr
-            let dupe = "abcdefgh"
-            var fixed_ids = []
 
-            for(let char_id of Object.keys(chars)){
-                let i = 0 
-                while(i<chars[char_id]["quantity"]){
-                    fixed_ids.push(char_id + dupe.charAt(i))
-                    i++
-                }
-            }
-            
-            for(const [i, fixed_id] of fixed_ids.entries()){
-                let char_id = fixed_id.slice(0, 5)
+            for(let i of Object.keys(chars)){
                 char_arr[i] = new Character(
-                    char_id, 
-                    card_data[char_id]["name"], 
-                    card_data[char_id]["sides"],
-                    card_data[char_id]["health"],
+                    chars[i]['card']['id'],
+                    chars[i]['card']['name'],
+                    chars[i]['card']['sides'],
+                    chars[i]['dice'] * chars[i]['dice_dmg'],
+                    chars[i]['card']['health']
                 )
             }
         }
@@ -254,8 +235,8 @@
             svg.append("g")
                 .call(d3.axisLeft(y))
 
-            // generate_characters("#opp_chars", opp_char_arr)
-            // generate_characters("#user_chars", user_char_arr)
+            generate_characters("#opp_chars", opp_chars)
+            generate_characters("#user_chars", user_chars)
             let turn_dmgs = get_turn_dmg() 
             data_to_curve(format_data(turn_dmgs["opp"]), "#a33639") 
             data_to_curve(format_data(turn_dmgs["user"]), "#0071C5")  
@@ -283,10 +264,10 @@
                     }
 
                     for(let char of user_char_arr){
-                        user_total_dmg += char.get_damage()
+                        user_total_dmg += char.dmg
                     }
                     for(let char of opp_char_arr){
-                        opp_total_dmg += char.get_damage()
+                        opp_total_dmg += char.dmg
                     }
                     user_turn_dmgs[i] = user_total_dmg
                     opp_turn_dmgs[i] = opp_total_dmg
@@ -296,6 +277,8 @@
                     "opp": opp_turn_dmgs,
                     "user": user_turn_dmgs
                 }
+
+                console.log(turn_dmgs)
 
                 return turn_dmgs
             }
@@ -360,11 +343,13 @@
                 let char_wrap = document.querySelector(player_div)
 
                 if(!char_wrap.firstChild){
-                    for(let [i, char] of char_arr.entries()){
+                    for(let i of Object.keys(char_arr)){
+                        // console.log(i)
+                        // console.log(char_arr[i])
                         let char_div = document.createElement("div")
                         char_div.className = "character"
                         char_div.id = "character" + i
-                        char_div.innerText = char.name
+                        char_div.innerText = char_arr[i]['card'].name
                         char_wrap.appendChild(char_div)
 
                         let char_toggle = document.createElement("input")
@@ -372,13 +357,14 @@
                         char_toggle.id = "toggle" + i
                         char_toggle.type = "number"
                         char_toggle.min = "1"
-                        char_toggle.max = char_arr.length 
+                        char_toggle.max = char_arr.length       // fix upper bound
                         char_div.appendChild(char_toggle)
 
-                        char_toggle.addEventListener("change", function() {
-                            char_arr[this.id.slice(6,7)].assign_pri(this.value)
-                            priority_set = true
-                        })
+                        // assign object to class?
+                        // char_toggle.addEventListener("change", function() {
+                        //     char_arr[this.id.slice(6,7)].assign_pri(this.value)
+                        //     priority_set = true
+                        // })
                     }
                 }
             }
