@@ -13,9 +13,6 @@ This is going to be a simple single page application that works in tandem with s
 
 ## Progress
 
-23 Apr 19
-It's gotten to the point to where I'm really kicking myself for trying to do this without a backend. I've revised the progress list to reflect the integration of Python/Django.
-
 - [x] Get all data for a deck to the page
 - [x] Generate a graph for a curve (based on a four turn game)
 
@@ -25,7 +22,7 @@ It's gotten to the point to where I'm really kicking myself for trying to do thi
 
 - [x] Create the basic Django application with the app working in its previous state
 - [x] Write a Python script to populate a Postgres database with all the card information
-- [ ] Replace existing JS code with Django template code to get card info from database instead of looped API requests
+- [x] Replace existing JS code with Django template code to get card info from database instead of looped API requests
 
 * [ ] Select to add upgrades for different turns
 * [ ] Select to add supports for different turns
@@ -36,3 +33,9 @@ It's gotten to the point to where I'm really kicking myself for trying to do thi
 * [ ] Styling
 
 
+### Known Issues
+07 May 2019
+    -   If searching for other decks after doing an initial search, graph will not refresh with new data. Maybe
+        try to wipe the page on submit
+    -   Minor, but after becoming more familiar with the game, having a slider to select turn length is 
+        unnecessary. Maybe just remove it and cap out at 4-6 turns

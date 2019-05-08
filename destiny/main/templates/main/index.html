@@ -25,7 +25,6 @@
     <div class="char_wrapper" id="opp_chars"></div>
 
     <script>
-        // type="text/javascript"; src='../static/main/index.js';
         let base_url = "https://swdestinydb.com/api/public/"
         let deck_submit_btn = document.querySelector("#deck_submit_btn") 
         let graph_btn = document.querySelector("#graph_btn") 
@@ -41,10 +40,10 @@
         let turns = document.querySelector("#turn_value")
         turns.innerText = turn_slide.value
 
-        // let user_hp = 0
-        // let opp_hp = 0
-        // let user_target = {}
-        // let opp_target = {}
+        let user_hp = 0
+        let opp_hp = 0
+        let user_target = {}
+        let opp_target = {}
 
 
         class Dice_Card {
@@ -53,7 +52,7 @@
                 this.name = name
                 this.sides = sides
                 this.dmg = dmg
-
+                this.saved_dmg = dmg
             }
         }
 
@@ -78,18 +77,18 @@
             
 
             get_damage(){
-                return this.dmg_total
+                return this.dmg
             }
 
 
             reset_char() {
-                // this.calc_dmg()
+                this.dmg = this.saved_dmg
                 this.alive = true
             }
 
 
             get_wrecked(){
-                this.dmg_total = 0
+                this.dmg = 0
                 this.alive = false
             }
         }
@@ -134,17 +133,7 @@
                         }
                     }
                 )
-                // .all([get_card_promise(deck_id, "decklist/"), get_card_promise(opp_deck, "decklist/")]) 
                 .then(decks => {
-                    // let user_char = decks[0]["data"]["characters"]
-                    // let user_deck_cards = decks[0]["data"]["slots"]
-                    // let opp_char = decks[1]["data"]["characters"]
-                    // let opp_deck_cards = decks[1]["data"]["slots"]
-                    // var cards = Object.assign({}, user_char, user_deck_cards, opp_char, opp_deck_cards)
-                    
-                    // let card_promises = []
-                    // Object.keys(cards).forEach(card => {
-                    //     card_promises.push(get_card_promise(card, "card/"))
                     opp_chars = decks.data["opp"]
                     user_chars = decks.data["user"]
                     assign_chars(opp_chars, false)
@@ -152,18 +141,6 @@
                     
                     get_curve(turns.innerText)
                 })
-
-                // axios
-                //     .all(card_promises)
-                //     .then(axios.spread((...args) => {
-                //         for(let card_obj of args){
-                //             card_data[card_obj["data"]["code"]] = card_obj["data"]
-                //         }
-                //         assign_chars(user_char, true)
-                //         assign_chars(opp_char, false)
-                //         get_curve(turns.innerText)
-                //     }))
-                
         }
 
 
@@ -182,24 +159,19 @@
         }
 
 
-        // reference is card/deck id number, loc is the location of the resource for the destinydb API
-        function get_card_promise(reference, loc){
-            let url = base_url + loc + reference 
-            return axios.get(url, { "Access-Control-Allow-Origin": "*" })
-        }
-
-
         function reset(){
-            user_target = {}
-            opp_target = {}
-            user_hp = 0
-            opp_hp = 0
+            if(document.querySelector("#opp_chars").firstChild || document.querySelector("#user_chars").firstChild){
+                user_target = {}
+                opp_target = {}
+                user_hp = 0
+                opp_hp = 0
 
-            for(let char of opp_char_arr){
-                char.reset_char()
-            }
-            for(let char of user_char_arr){
-                char.reset_char()
+                for(let char of opp_char_arr){
+                    char.reset_char()
+                }
+                for(let char of user_char_arr){
+                    char.reset_char()
+                } 
             }
         }
 
@@ -235,8 +207,8 @@
             svg.append("g")
                 .call(d3.axisLeft(y))
 
-            generate_characters("#opp_chars", opp_chars)
-            generate_characters("#user_chars", user_chars)
+            generate_characters("#opp_chars", opp_char_arr)
+            generate_characters("#user_chars", user_char_arr)
             let turn_dmgs = get_turn_dmg() 
             data_to_curve(format_data(turn_dmgs["opp"]), "#a33639") 
             data_to_curve(format_data(turn_dmgs["user"]), "#0071C5")  
@@ -278,8 +250,6 @@
                     "user": user_turn_dmgs
                 }
 
-                console.log(turn_dmgs)
-
                 return turn_dmgs
             }
 
@@ -301,8 +271,7 @@
             }
 
 
-            // Returns object with character id as key and avg dmg per turn as value.
-            // Id is appended with letter to differentiate multiples 
+            // Returns array with an object for each turn. Objects contain x, y graph data
             function format_data(char_arr){
                 let formatted = []
                 let dmg = 0
@@ -344,12 +313,10 @@
 
                 if(!char_wrap.firstChild){
                     for(let i of Object.keys(char_arr)){
-                        // console.log(i)
-                        // console.log(char_arr[i])
                         let char_div = document.createElement("div")
                         char_div.className = "character"
                         char_div.id = "character" + i
-                        char_div.innerText = char_arr[i]['card'].name
+                        char_div.innerText = char_arr[i].name
                         char_wrap.appendChild(char_div)
 
                         let char_toggle = document.createElement("input")
@@ -357,14 +324,13 @@
                         char_toggle.id = "toggle" + i
                         char_toggle.type = "number"
                         char_toggle.min = "1"
-                        char_toggle.max = char_arr.length       // fix upper bound
+                        char_toggle.max = char_arr.length       
                         char_div.appendChild(char_toggle)
 
-                        // assign object to class?
-                        // char_toggle.addEventListener("change", function() {
-                        //     char_arr[this.id.slice(6,7)].assign_pri(this.value)
-                        //     priority_set = true
-                        // })
+                        char_toggle.addEventListener("change", function() {
+                            char_arr[this.id.slice(6,7)].assign_pri(this.value)
+                            priority_set = true
+                        })
                     }
                 }
             }
