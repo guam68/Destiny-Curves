@@ -16,13 +16,22 @@ def get_decks(request):
     user_deck = requests.get(url + data['deck_id'].strip()).json()
     opp_deck = requests.get(url + data['opp_deck'].strip()).json()
 
+    user_dice = {}
+    opp_dice = {}
+    for card_id in user_deck['slots']:
+        if user_deck['slots'][card_id]['dice'] > 0:
+            user_dice[card_id] = model_to_dict(Card.objects.get(id = card_id))
+    for card_id in opp_deck['slots']:
+        if opp_deck['slots'][card_id]['dice'] > 0:
+            opp_dice[card_id] = model_to_dict(Card.objects.get(id = card_id))     
+    
     user_chars = user_deck['characters']
     opp_chars = opp_deck['characters']
 
     user_char_dict = assign_characters(user_chars)
     opp_char_dict = assign_characters(opp_chars)
 
-    return JsonResponse({'user': user_char_dict, 'opp': opp_char_dict})
+    return JsonResponse({'user': user_char_dict, 'user_dice': user_dice, 'opp': opp_char_dict, 'opp_dice': opp_dice})
 
 
 def assign_characters(chars):
@@ -48,4 +57,3 @@ def assign_characters(chars):
                 i += 1
     
     return char_dict
-

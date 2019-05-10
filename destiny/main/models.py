@@ -3,6 +3,7 @@ import re
 
 class Card(models.Model):
     id = models.IntegerField(primary_key=True)
+    type_code = models.TextField(blank=True, null=True)
     sides = models.TextField(blank=True, null=True)
     name = models.TextField()
     cost = models.IntegerField(blank=True, null=True)

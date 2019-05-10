@@ -95,9 +95,10 @@
 
 
         class Upgrade extends Dice_Card {
-            constructor(id, names, sides, cost){
-                super(id, names, sides)
+            constructor(id, names, sides, dmg, cost, turn_added){
+                super(id, names, sides, dmg)
                 this.cost = cost
+                this.turn_added = turn_added
             }
         }
 

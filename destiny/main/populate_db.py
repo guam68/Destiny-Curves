@@ -14,6 +14,7 @@ for i, card in enumerate(cards):
         sides = None
     new_card = Card(
                 id = card['code'],
+                type_code = card['type_code'],
                 sides = sides,
                 name = card['name'],
                 cost = card['cost'],
