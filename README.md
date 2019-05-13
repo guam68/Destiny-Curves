@@ -34,8 +34,6 @@ This is going to be a simple single page application that works in tandem with s
 
 
 ### Known Issues
-07 May 2019
-    -   If searching for other decks after doing an initial search, graph will not refresh with new data. Maybe
-        try to wipe the page on submit
-    -   Minor, but after becoming more familiar with the game, having a slider to select turn length is 
-        unnecessary. Maybe just remove it and cap out at 4-6 turns
+13 May 2019
+-   Minor, but after becoming more familiar with the game, having a slider to select turn length is 
+    unnecessary. Maybe just remove it and cap out at 4-6 turns

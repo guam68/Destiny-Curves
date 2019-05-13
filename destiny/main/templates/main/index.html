@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Destiny Curves</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'main/index.css'%}"/>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="http://d3js.org/d3.v4.js"></script>
     
@@ -24,13 +25,26 @@
     <div class="char_wrapper" id="user_chars"></div>
     <div class="char_wrapper" id="opp_chars"></div>
 
+    <div id="upgrade_modal">
+        <div id="upgrade_list"></div>
+        <div>
+            <button id="cancel_modal_btn">Cancel</button>
+            <button id="apply_modal_btn">Apply</button>
+        </div>
+    </div>
+
+
     <script>
         let base_url = "https://swdestinydb.com/api/public/"
         let deck_submit_btn = document.querySelector("#deck_submit_btn") 
         let graph_btn = document.querySelector("#graph_btn") 
+        let cancel_modal_btn = document.querySelector("#cancel_modal_btn") 
+        let apply_modal_btn = document.querySelector("#apply_modal_btn") 
 
         let user_char_arr = [] 
         let opp_char_arr = [] 
+        let user_dice = {} 
+        let opp_dice = {}
         let card_data = {}
         let priority_set = false
         let opp_chars = {}
@@ -70,7 +84,7 @@
             }
             
 
-            give_upgrade(){
+            give_upgrade(card_id){
                 return
             }
             
@@ -104,6 +118,8 @@
 
         deck_submit_btn.addEventListener("click", () => {
             priority_set = false
+            user_char_arr = []
+            opp_char_arr = []
             reset()
             process_data()
         })
@@ -111,6 +127,11 @@
 
         graph_btn.addEventListener("click", () => {
             get_curve(turns.innerText)
+        })
+
+
+        cancel_modal_btn.addEventListener("click", () => {
+            document.getElementById("upgrade_modal").style.display="none"
         })
 
 
@@ -138,6 +159,8 @@
                 .then(decks => {
                     opp_chars = decks.data["opp"]
                     user_chars = decks.data["user"]
+                    opp_dice = decks.data["opp_dice"]
+                    user_dice = decks.data["user_dice"]
                     assign_chars(opp_chars, false)
                     assign_chars(user_chars, true)
                     
@@ -162,11 +185,22 @@
 
 
         function reset(){
-            if(document.querySelector("#opp_chars").firstChild || document.querySelector("#user_chars").firstChild){
+            let user_chars = document.querySelector("#user_chars")
+            let opp_chars = document.querySelector("#opp_chars")
+
+            if(user_chars.firstChild || opp_chars.firstChild){
                 user_target = {}
                 opp_target = {}
+ 
                 user_hp = 0
                 opp_hp = 0
+
+                while(opp_chars.hasChildNodes()){
+                    opp_chars.removeChild(opp_chars.lastChild)
+                }
+                while(user_chars.hasChildNodes()){
+                    user_chars.removeChild(user_chars.lastChild)
+                }
 
                 for(let char of opp_char_arr){
                     char.reset_char()
@@ -329,9 +363,35 @@
                         char_toggle.max = char_arr.length       
                         char_div.appendChild(char_toggle)
 
+                        let upgrade_btn = document.createElement("button")
+                        upgrade_btn.id = "upgrade" + i
+                        upgrade_btn.innerText = "+"
+                        char_div.appendChild(upgrade_btn)
+
                         char_toggle.addEventListener("change", function() {
                             char_arr[this.id.slice(6,7)].assign_pri(this.value)
                             priority_set = true
+                        })
+
+                        upgrade_btn.addEventListener("click", function() {
+                            while(upgrade_list.hasChildNodes()){
+                                upgrade_list.removeChild(upgrade_list.lastChild)
+                            }
+                            upgrades = player_div == "#user_chars" ? user_dice : opp_dice
+                            for(let upgrade of Object.values(upgrades)){
+                                if(upgrade["type_code"] == "upgrade"){
+                                    let upgrade_div = document.createElement("div")
+                                    upgrade_div.innerText = upgrade["name"]
+                                    upgrade_list.appendChild(upgrade_div)
+
+                                    let upgrade_turn = document.createElement("input")
+                                    upgrade_turn.type = "number"
+                                    upgrade_turn.min = "1"
+                                    upgrade_turn.max = "6"      
+                                    upgrade_list.appendChild(upgrade_turn)
+                                }
+                            }
+                            document.getElementById("upgrade_modal").style.display="block"
                         })
                     }
                 }

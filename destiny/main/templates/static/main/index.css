@@ -1,0 +1,11 @@
+
+#upgrade_modal {
+    width:30%;
+    background-color: lightgray;
+    display: none;
+    position: absolute;
+    margin: auto;
+    top: 20%;
+    left: 0;
+    right: 0;
+}
