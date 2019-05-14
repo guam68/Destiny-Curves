@@ -4,6 +4,7 @@ from django.forms.models import model_to_dict
 from .models import Card
 import requests
 import json
+# from . import populate_db
 
 
 def index(request):
@@ -39,20 +40,20 @@ def assign_characters(chars):
     i = 0
     for char in chars:
         if chars[char]['quantity'] == 1:
-            card = Card.objects.filter(id = char)[0]
+            card = Card.objects.get(id = char)
             char_dict[i] = { 
                 'card': model_to_dict(card),
                 'dice': chars[char]['dice'],
-                'dice_dmg': card.calc_dmg()
+                'dice_dmg': card.dmg
             }
             i += 1
         else:
+            card = Card.objects.get(id = char)
             for copy in range(chars[char]['quantity']):
-                card = Card.objects.filter(id = char)[0]
                 char_dict[i] = { 
-                    'card': model_to_dict(Card.objects.filter(id = char)[0]),
+                    'card': model_to_dict(card),
                     'dice': 1,
-                    'dice_dmg': card.calc_dmg()
+                    'dice_dmg': card.dmg
                 }
                 i += 1
     

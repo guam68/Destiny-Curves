@@ -47,7 +47,7 @@
         let opp_dice = {}
         let card_data = {}
         let priority_set = false
-        let opp_chars = {}
+        // let opp_chars = {}
 
         let turn_slide = document.querySelector("#turn_slide")
         let turns = document.querySelector("#turn_value")
@@ -65,7 +65,6 @@
                 this.name = name
                 this.sides = sides
                 this.dmg = dmg
-                this.saved_dmg = dmg
             }
         }
 
@@ -76,6 +75,8 @@
                 this.health = health
                 this.alive = true
                 this.priority = 0
+                this.saved_dmg = dmg
+                this.upgrades = []
             }
 
 
@@ -84,8 +85,10 @@
             }
             
 
-            give_upgrade(card_id){
-                return
+            give_upgrade(card_id, turn, dice_cards){
+                let card = dice_cards[card_id]
+                this.upgrades.push(new Upgrade(card_id, card["name"], card["sides"], card["dmg"], card["cost"], turn))
+                console.log(this.upgrades)
             }
             
 
@@ -97,6 +100,7 @@
             reset_char() {
                 this.dmg = this.saved_dmg
                 this.alive = true
+                this.upgrades = []
             }
 
 
@@ -108,8 +112,8 @@
 
 
         class Upgrade extends Dice_Card {
-            constructor(id, names, sides, dmg, cost, turn_added){
-                super(id, names, sides, dmg)
+            constructor(id, name, sides, dmg, cost, turn_added){
+                super(id, name, sides, dmg)
                 this.cost = cost
                 this.turn_added = turn_added
             }
@@ -132,6 +136,19 @@
 
         cancel_modal_btn.addEventListener("click", () => {
             document.getElementById("upgrade_modal").style.display="none"
+        })
+
+
+        apply_modal_btn.addEventListener("click", () => {
+            let upgrades = document.getElementsByClassName("upgrade")
+            if(upgrades[0]){
+                let char_idx = upgrades[0].data[0]
+                char_arr = upgrades[0].data[1] == "#user_chars" ? user_char_arr : opp_char_arr
+                dice_cards = upgrades[0].data[1] == "#user_chars" ? user_dice : opp_dice
+                for(let i=0;i<upgrades.length;i++){
+                    char_arr[char_idx].give_upgrade(upgrades[i].id, upgrades[i].value, dice_cards)
+                }
+            }
         })
 
 
@@ -285,7 +302,6 @@
                     "opp": opp_turn_dmgs,
                     "user": user_turn_dmgs
                 }
-
                 return turn_dmgs
             }
 
@@ -385,8 +401,11 @@
                                     upgrade_list.appendChild(upgrade_div)
 
                                     let upgrade_turn = document.createElement("input")
+                                    upgrade_turn.className = "upgrade"
+                                    upgrade_turn.id = upgrade["id"]
+                                    upgrade_turn.data = [this.id.slice(7,8), player_div]
                                     upgrade_turn.type = "number"
-                                    upgrade_turn.min = "1"
+                                    upgrade_turn.min = "0"
                                     upgrade_turn.max = "6"      
                                     upgrade_list.appendChild(upgrade_turn)
                                 }
