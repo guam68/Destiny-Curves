@@ -47,7 +47,6 @@
         let opp_dice = {}
         let card_data = {}
         let priority_set = false
-        // let opp_chars = {}
 
         let turn_slide = document.querySelector("#turn_slide")
         let turns = document.querySelector("#turn_value")
@@ -76,7 +75,7 @@
                 this.alive = true
                 this.priority = 0
                 this.saved_dmg = dmg
-                this.upgrades = []
+                this.upgrades = {0:[], 1:[], 2:[], 3:[], 4:[], 5:[]} 
             }
 
 
@@ -87,20 +86,24 @@
 
             give_upgrade(card_id, turn, dice_cards){
                 let card = dice_cards[card_id]
-                this.upgrades.push(new Upgrade(card_id, card["name"], card["sides"], card["dmg"], card["cost"], turn))
+                this.upgrades[turn].push(new Upgrade(card_id, card["name"], card["sides"], card["dmg"], card["cost"], turn))
                 console.log(this.upgrades)
             }
             
 
-            get_damage(){
-                return this.dmg
+            get_damage(turn){
+                let upgrade_dmg = 0
+                let turn_upgrades = this.upgrades[turn]
+                for(let i=0;i<turn_upgrades.length;i++){
+                    upgrade_dmg += turn_upgrades[i].dmg
+                }
+                return this.dmg + upgrade_dmg
             }
 
-
+            // resetting upgrades or priority here will break program
             reset_char() {
                 this.dmg = this.saved_dmg
                 this.alive = true
-                this.upgrades = []
             }
 
 
@@ -289,10 +292,10 @@
                     }
 
                     for(let char of user_char_arr){
-                        user_total_dmg += char.dmg
+                        user_total_dmg += char.get_damage(i)
                     }
                     for(let char of opp_char_arr){
-                        opp_total_dmg += char.dmg
+                        opp_total_dmg += char.get_damage(i)
                     }
                     user_turn_dmgs[i] = user_total_dmg
                     opp_turn_dmgs[i] = opp_total_dmg
