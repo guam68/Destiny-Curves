@@ -34,9 +34,7 @@ This is going to be a simple single page application that works in tandem with s
 
 
 ### Known Issues
-14 May 2019
+30 May 2019
 -   Minor, but after becoming more familiar with the game, having a slider to select turn length is 
     unnecessary. Maybe just remove it and cap out at 4-6 turns
--   Only one copy of upgrade appearing in modal. May have to assign similar to characters within view 
-    before passing to template
--   Error in browser when applying with no value selected for upgrade. Needs conditional to check if empty
+
