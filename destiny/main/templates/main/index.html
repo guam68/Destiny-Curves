@@ -86,8 +86,10 @@
 
             give_upgrade(card_id, turn, dice_cards){
                 let card = dice_cards[card_id]
-                this.upgrades[turn].push(new Upgrade(card_id, card["name"], card["sides"], card["dmg"], card["cost"], turn))
-                console.log(this.upgrades)
+                console.log(Object.keys(this.upgrades).length, turn)
+                for(let i=turn;i<Object.keys(this.upgrades).length;i++){
+                    this.upgrades[i].push(new Upgrade(card_id, card["name"], card["sides"], card["dmg"], card["cost"], turn))
+                }
             }
             
 
@@ -149,7 +151,9 @@
                 char_arr = upgrades[0].data[1] == "#user_chars" ? user_char_arr : opp_char_arr
                 dice_cards = upgrades[0].data[1] == "#user_chars" ? user_dice : opp_dice
                 for(let i=0;i<upgrades.length;i++){
-                    char_arr[char_idx].give_upgrade(upgrades[i].id, upgrades[i].value, dice_cards)
+                    if(upgrades[i].value){
+                        char_arr[char_idx].give_upgrade(upgrades[i].id, upgrades[i].value, dice_cards)
+                    }
                 }
             }
         })
@@ -399,7 +403,6 @@
                             for(let upgrade of Object.values(upgrades)){
                                 if(upgrade["type_code"] == "upgrade"){
                                     for(let i=0;i<upgrade["quantity"];i++){
-                                        alert(upgrade["name"])
                                         let upgrade_div = document.createElement("div")
                                         upgrade_div.innerText = upgrade["name"]
                                         upgrade_list.appendChild(upgrade_div)
