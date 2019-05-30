@@ -150,6 +150,7 @@
                 let char_idx = upgrades[0].data[0]
                 char_arr = upgrades[0].data[1] == "#user_chars" ? user_char_arr : opp_char_arr
                 dice_cards = upgrades[0].data[1] == "#user_chars" ? user_dice : opp_dice
+                char_arr[char_idx].upgrades = {0:[], 1:[], 2:[], 3:[], 4:[], 5:[]} 
                 for(let i=0;i<upgrades.length;i++){
                     if(upgrades[i].value){
                         char_arr[char_idx].give_upgrade(upgrades[i].id, upgrades[i].value, dice_cards)
@@ -388,6 +389,7 @@
                         let upgrade_btn = document.createElement("button")
                         upgrade_btn.id = "upgrade" + i
                         upgrade_btn.innerText = "+"
+                        upgrade_btn.data = char_arr[i].id
                         char_div.appendChild(upgrade_btn)
 
                         char_toggle.addEventListener("change", function() {
