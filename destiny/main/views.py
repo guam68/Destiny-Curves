@@ -19,9 +19,11 @@ def get_decks(request):
 
     user_dice = {}
     opp_dice = {}
+
     for card_id in user_deck['slots']:
         if user_deck['slots'][card_id]['dice'] > 0:
             user_dice[card_id] = model_to_dict(Card.objects.get(id = card_id))
+            user_dice[card_id]['quantity'] = user_deck['slots'][card_id]['quantity']
     for card_id in opp_deck['slots']:
         if opp_deck['slots'][card_id]['dice'] > 0:
             opp_dice[card_id] = model_to_dict(Card.objects.get(id = card_id))     

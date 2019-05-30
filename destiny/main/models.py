@@ -1,5 +1,4 @@
 from django.db import models
-import re
 
 class Card(models.Model):
     id = models.TextField(primary_key=True)

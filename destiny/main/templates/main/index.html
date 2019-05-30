@@ -183,7 +183,6 @@
                     user_dice = decks.data["user_dice"]
                     assign_chars(opp_chars, false)
                     assign_chars(user_chars, true)
-                    
                     get_curve(turns.innerText)
                 })
         }
@@ -399,18 +398,21 @@
                             upgrades = player_div == "#user_chars" ? user_dice : opp_dice
                             for(let upgrade of Object.values(upgrades)){
                                 if(upgrade["type_code"] == "upgrade"){
-                                    let upgrade_div = document.createElement("div")
-                                    upgrade_div.innerText = upgrade["name"]
-                                    upgrade_list.appendChild(upgrade_div)
+                                    for(let i=0;i<upgrade["quantity"];i++){
+                                        alert(upgrade["name"])
+                                        let upgrade_div = document.createElement("div")
+                                        upgrade_div.innerText = upgrade["name"]
+                                        upgrade_list.appendChild(upgrade_div)
 
-                                    let upgrade_turn = document.createElement("input")
-                                    upgrade_turn.className = "upgrade"
-                                    upgrade_turn.id = upgrade["id"]
-                                    upgrade_turn.data = [this.id.slice(7,8), player_div]
-                                    upgrade_turn.type = "number"
-                                    upgrade_turn.min = "0"
-                                    upgrade_turn.max = "6"      
-                                    upgrade_list.appendChild(upgrade_turn)
+                                        let upgrade_turn = document.createElement("input")
+                                        upgrade_turn.className = "upgrade"
+                                        upgrade_turn.id = upgrade["id"]
+                                        upgrade_turn.data = [this.id.slice(7,8), player_div]
+                                        upgrade_turn.type = "number"
+                                        upgrade_turn.min = "0"
+                                        upgrade_turn.max = "6"      
+                                        upgrade_list.appendChild(upgrade_turn)
+                                    }
                                 }
                             }
                             document.getElementById("upgrade_modal").style.display="block"
