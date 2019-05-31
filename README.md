@@ -25,8 +25,9 @@ This is going to be a simple single page application that works in tandem with s
 - [x] Replace existing JS code with Django template code to get card info from database instead of looped API requests
 
 * [X] Select to add upgrades for different turns
-* [ ] Select to add supports for different turns
+* [X] Select to add supports for different turns
 
+- [ ] Lines on graph showing total team health
 - [ ] Generate a graph plotting required resources 
 - [ ] Interface for browsing cards
 

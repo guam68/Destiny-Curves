@@ -20,6 +20,7 @@
 
     <div class="char_wrapper" id="user_chars"></div>
     <div class="char_wrapper" id="opp_chars"></div>
+    <div class="upgrade_btns"></div>
 
     <div id="upgrade_modal">
         <div id="upgrade_list"></div>
@@ -68,7 +69,8 @@
                 this.alive = true
                 this.priority = 0
                 this.saved_dmg = dmg
-                this.upgrades = {0:[], 1:[], 2:[], 3:[], 4:[], 5:[]} 
+                this.upgrades = {0:[], 1:[], 2:[], 3:[], 4:[], 5:[]}
+                this.supports =  {0:[], 1:[], 2:[], 3:[], 4:[], 5:[]}
             }
 
 
@@ -79,20 +81,32 @@
 
             give_upgrade(card_id, turn, dice_cards){
                 let card = dice_cards[card_id]
-                console.log(Object.keys(this.upgrades).length, turn)
                 for(let i=turn;i<Object.keys(this.upgrades).length;i++){
                     this.upgrades[i].push(new Upgrade(card_id, card["name"], card["sides"], card["dmg"], card["cost"], turn))
+                }
+            }
+
+
+            set_support(card_id, turn, dice_cards){
+                let card = dice_cards[card_id]
+                for(let i=turn;i<Object.keys(this.upgrades).length;i++){
+                    this.supports[i].push(new Upgrade(card_id, card["name"], card["sides"], card["dmg"], card["cost"], turn))
                 }
             }
             
 
             get_damage(turn){
                 let upgrade_dmg = 0
+                let support_dmg = 0
                 let turn_upgrades = this.upgrades[turn]
+                let turn_supports = this.supports[turn]
                 for(let i=0;i<turn_upgrades.length;i++){
                     upgrade_dmg += turn_upgrades[i].dmg
                 }
-                return this.dmg + upgrade_dmg
+                for(let i=0;i<turn_supports.length;i++){
+                    support_dmg += turn_supports[i].dmg
+                }
+                return this.dmg + upgrade_dmg + support_dmg
             }
 
             // resetting upgrades or priority here will break program
@@ -149,7 +163,20 @@
                         char_arr[char_idx].give_upgrade(upgrades[i].id, upgrades[i].value, dice_cards)
                     }
                 }
+            } else {
+                let supports = document.getElementsByClassName("support")
+                if(supports[0]){
+                    char_arr = supports[0].data == "#user_chars" ? user_char_arr : opp_char_arr
+                    dice_cards = supports[0].data == "#user_chars" ? user_dice : opp_dice
+                    char_arr[0].supports = {0:[], 1:[], 2:[], 3:[], 4:[], 5:[]} 
+                for(let i=0;i<supports.length;i++){
+                    if(supports[i].value){
+                        char_arr[0].set_support(supports[i].id, supports[i].value, dice_cards)
+                    }
+                }
             }
+            }
+
             document.getElementById("upgrade_modal").style.display="none"
         })
 
@@ -258,6 +285,7 @@
 
             generate_characters("#opp_chars", opp_char_arr)
             generate_characters("#user_chars", user_char_arr)
+            generate_options()
             let turn_dmgs = get_turn_dmg() 
             data_to_curve(format_data(turn_dmgs["opp"]), "#a33639") 
             data_to_curve(format_data(turn_dmgs["user"]), "#0071C5")  
@@ -406,6 +434,56 @@
                                         upgrade_turn.min = "0"
                                         upgrade_turn.max = "6"      
                                         upgrade_list.appendChild(upgrade_turn)
+                                    }
+                                }
+                            }
+                            document.getElementById("upgrade_modal").style.display="block"
+                        })
+                    }
+                }
+            }
+
+
+            function generate_options(){
+                let upgrade_btn_div = document.querySelector(".upgrade_btns")
+                if(!upgrade_btn_div.firstChild){
+                    let user_supp_btn = document.createElement("button")
+                    user_supp_btn.id = "user_support"
+                    user_supp_btn.data = "#user_chars"
+                    user_supp_btn.className = "support_btn"
+                    user_supp_btn.innerText = "Add user support"
+                    upgrade_btn_div.appendChild(user_supp_btn)
+
+                    let opp_supp_btn = document.createElement("button")
+                    opp_supp_btn.id = "opp_support"
+                    opp_supp_btn.data = "#opp_chars"
+                    opp_supp_btn.className = "support_btn"
+                    opp_supp_btn.innerText = "Add opponent support"
+                    upgrade_btn_div.appendChild(opp_supp_btn)
+
+                    let supp_btns = document.querySelectorAll(".support_btn")
+                    for(let btn of supp_btns){
+                        btn.addEventListener("click", function() {
+                            // new modal?
+                            while(upgrade_list.hasChildNodes()){
+                                upgrade_list.removeChild(upgrade_list.lastChild)
+                            }
+                            supports = btn["id"] == "user_support" ? user_dice : opp_dice
+                            for(let support of Object.values(supports)){
+                                if(support["type_code"] == "support"){
+                                    for(let i=0;i<support["quantity"];i++){
+                                        let support_div = document.createElement("div")
+                                        support_div.innerText = support["name"]
+                                        upgrade_list.appendChild(support_div)
+
+                                        let support_turn = document.createElement("input")
+                                        support_turn.className = "support"
+                                        support_turn.id = support["id"]
+                                        support_turn.data = this.data 
+                                        support_turn.type = "number"
+                                        support_turn.min = "0"
+                                        support_turn.max = "6"      
+                                        upgrade_list.appendChild(support_turn)
                                     }
                                 }
                             }
