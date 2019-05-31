@@ -27,6 +27,7 @@ def get_decks(request):
     for card_id in opp_deck['slots']:
         if opp_deck['slots'][card_id]['dice'] > 0:
             opp_dice[card_id] = model_to_dict(Card.objects.get(id = card_id))     
+            opp_dice[card_id]['quantity'] = opp_deck['slots'][card_id]['quantity']
     
     user_chars = user_deck['characters']
     opp_chars = opp_deck['characters']
