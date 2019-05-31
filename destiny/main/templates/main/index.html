@@ -14,8 +14,9 @@
     <p>27603 27617</p>
     <input id="user_deck_id" type="text" placeholder="Enter your deck id">
     <input id="opp_deck_id" type="text" placeholder="Enter opponent deck id">
-    <button id="deck_submit_btn" type="submit">Submit</button>
-    <button id="graph_btn" type="submit">Generate Graph</button>
+    <div class="graph_btns">
+        <button id="deck_submit_btn" type="submit">Submit</button>
+    </div>
     <div class="chart"></div>
 
     <div class="char_wrapper" id="user_chars"></div>
@@ -89,7 +90,7 @@
 
             set_support(card_id, turn, dice_cards){
                 let card = dice_cards[card_id]
-                for(let i=turn;i<Object.keys(this.upgrades).length;i++){
+                for(let i=turn;i<Object.keys(this.supports).length;i++){
                     this.supports[i].push(new Upgrade(card_id, card["name"], card["sides"], card["dmg"], card["cost"], turn))
                 }
             }
@@ -138,11 +139,6 @@
             opp_char_arr = []
             reset()
             process_data()
-        })
-
-
-        graph_btn.addEventListener("click", () => {
-            get_curve(turns)
         })
 
 
@@ -446,7 +442,18 @@
 
             function generate_options(){
                 let upgrade_btn_div = document.querySelector(".upgrade_btns")
+                let graph_btn_div = document.querySelector(".graph_btns")
                 if(!upgrade_btn_div.firstChild){
+                    let graph_btn = document.createElement("button")
+                    graph_btn.id = "graph_btn"
+                    graph_btn.type = "submit"
+                    graph_btn.innerText = "Generate Graph"
+                    graph_btn_div.appendChild(graph_btn)
+
+                    graph_btn.addEventListener("click", () => {
+                        get_curve(turns)
+                    })
+
                     let user_supp_btn = document.createElement("button")
                     user_supp_btn.id = "user_support"
                     user_supp_btn.data = "#user_chars"
