@@ -24,7 +24,7 @@ This is going to be a simple single page application that works in tandem with s
 - [x] Write a Python script to populate a Postgres database with all the card information
 - [x] Replace existing JS code with Django template code to get card info from database instead of looped API requests
 
-* [ ] Select to add upgrades for different turns
+* [X] Select to add upgrades for different turns
 * [ ] Select to add supports for different turns
 
 - [ ] Generate a graph plotting required resources 
@@ -32,9 +32,4 @@ This is going to be a simple single page application that works in tandem with s
 
 * [ ] Styling
 
-
-### Known Issues
-30 May 2019
--   Minor, but after becoming more familiar with the game, having a slider to select turn length is 
-    unnecessary. Maybe just remove it and cap out at 4-6 turns
 

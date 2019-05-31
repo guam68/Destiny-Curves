@@ -17,10 +17,6 @@
     <button id="deck_submit_btn" type="submit">Submit</button>
     <button id="graph_btn" type="submit">Generate Graph</button>
     <div class="chart"></div>
-    <div class="slidecontainer">
-        <input type="range" min="4" max="15" value="6" id="turn_slide">
-    </div>
-    <div id="turn_value"></div>
 
     <div class="char_wrapper" id="user_chars"></div>
     <div class="char_wrapper" id="opp_chars"></div>
@@ -47,10 +43,7 @@
         let opp_dice = {}
         let card_data = {}
         let priority_set = false
-
-        let turn_slide = document.querySelector("#turn_slide")
-        let turns = document.querySelector("#turn_value")
-        turns.innerText = turn_slide.value
+        let turns = 6
 
         let user_hp = 0
         let opp_hp = 0
@@ -135,7 +128,7 @@
 
 
         graph_btn.addEventListener("click", () => {
-            get_curve(turns.innerText)
+            get_curve(turns)
         })
 
 
@@ -157,12 +150,8 @@
                     }
                 }
             }
+            document.getElementById("upgrade_modal").style.display="none"
         })
-
-
-        turn_slide.oninput = function() {
-            turns.innerText = this.value
-        }
 
 
         function process_data(){
@@ -188,7 +177,7 @@
                     user_dice = decks.data["user_dice"]
                     assign_chars(opp_chars, false)
                     assign_chars(user_chars, true)
-                    get_curve(turns.innerText)
+                    get_curve(6)
                 })
         }
 
